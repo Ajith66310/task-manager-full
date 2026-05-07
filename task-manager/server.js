@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+const path = require("path");
 
 const { connectDB, disconnectDB } = require("./config/db");
 const routes = require("./routes");
@@ -31,6 +32,14 @@ if (process.env.NODE_ENV !== "test") {
 }
 
 app.use("/api", routes);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../task-manager-frontend/build")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../task-manager-frontend/build", "index.html"));
+  });
+}
 
 app.use(notFound);
 

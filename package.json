@@ -1,0 +1,14 @@
+{
+  "name": "task-manager-full",
+  "version": "1.0.0",
+  "description": "Full-stack Task Manager",
+  "scripts": {
+    "install-backend": "cd task-manager && npm install",
+    "install-frontend": "cd task-manager-frontend && npm install",
+    "build-frontend": "cd task-manager-frontend && npm run build",
+    "install-all": "npm run install-backend && npm run install-frontend",
+    "build": "npm run build-frontend",
+    "start": "cd task-manager && node server.js"
+  },
+  "dependencies": {}
+}
