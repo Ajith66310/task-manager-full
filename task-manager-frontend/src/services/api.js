@@ -1,7 +1,14 @@
 import axios from "axios";
 
+let baseURL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+
+// Ensure it ends with /api
+if (baseURL && !baseURL.endsWith("/api")) {
+  baseURL = baseURL.endsWith("/") ? `${baseURL}api` : `${baseURL}/api`;
+}
+
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000/api"
+  baseURL
 });
 
 // 🔐 Attach token automatically
