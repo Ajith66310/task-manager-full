@@ -191,18 +191,28 @@ function TaskList({ tasks = [], deleteTask, toggleTask, handleEdit }) {
                   {/* Actions */}
                   <div style={styles.actionsBox}>
                     <button
-                      onClick={() => toggleTask(t)}
-                      title="Toggle Status"
-                      style={styles.actionIconButton}
+                      onClick={() => t.status !== "completed" && toggleTask(t)}
+                      title={t.status === "completed" ? "Task Completed (Locked)" : "Toggle Status"}
+                      style={{
+                        ...styles.actionIconButton,
+                        opacity: t.status === "completed" ? 0.5 : 1,
+                        cursor: t.status === "completed" ? "not-allowed" : "pointer",
+                      }}
                       className="btn-ghost"
+                      disabled={t.status === "completed"}
                     >
                       <CheckCircle2 size={16} />
                     </button>
                     <button
-                      onClick={() => handleEdit(t)}
-                      title="Edit"
-                      style={styles.actionIconButton}
+                      onClick={() => t.status !== "completed" && handleEdit(t)}
+                      title={t.status === "completed" ? "Task Completed (Locked)" : "Edit"}
+                      style={{
+                        ...styles.actionIconButton,
+                        opacity: t.status === "completed" ? 0.5 : 1,
+                        cursor: t.status === "completed" ? "not-allowed" : "pointer",
+                      }}
                       className="btn-ghost"
+                      disabled={t.status === "completed"}
                     >
                       <Pencil size={15} />
                     </button>

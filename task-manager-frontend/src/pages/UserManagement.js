@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import adminService from "../services/adminService";
 import toast from "react-hot-toast";
 import {
-  Users as UsersIcon, CheckCircle2, Clock, Search, Shield, Loader2, UserCheck, Mail,
+  Users as UsersIcon, CheckCircle2, Clock, Search, Shield, Loader2, UserCheck, Mail, Trash2,
 } from "lucide-react";
 
 
@@ -33,6 +33,17 @@ const UserManagement = () => {
       fetchUsers();
     } catch {
       toast.error("Failed to verify user");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this user? This will also delete all their assigned tasks.")) return;
+    try {
+      await adminService.deleteUser(id);
+      toast.success("User deleted successfully");
+      fetchUsers();
+    } catch {
+      toast.error("Failed to delete user");
     }
   };
 
@@ -152,6 +163,14 @@ const UserManagement = () => {
                   ) : (
                     <span style={styles.verifiedTag}>Verified ✓</span>
                   )}
+                  
+                  <button
+                    onClick={() => handleDelete(user._id)}
+                    style={styles.deleteBtn}
+                    title="Delete User"
+                  >
+                    <Trash2 size={13} />
+                  </button>
                 </div>
               </div>
             ))}
@@ -299,6 +318,20 @@ const styles = {
     fontSize: "12px",
     color: "#475569",
     fontStyle: "italic",
+    marginRight: "12px",
+  },
+  deleteBtn: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "6px",
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
+    color: "#ef4444",
+    border: "1px solid rgba(239, 68, 68, 0.2)",
+    borderRadius: "8px",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    marginLeft: "auto",
   },
 };
 

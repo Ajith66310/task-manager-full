@@ -93,6 +93,7 @@ const Dashboard = ({ user, onLogout }) => {
                       style={{ marginTop: '0.5rem', marginBottom: 0 }}
                       value={task.status}
                       onChange={(e) => handleUpdateStatus(task._id, e.target.value)}
+                      disabled={task.status === "completed"}
                     >
                       <option value="pending">Pending</option>
                       <option value="in-progress">In Progress</option>

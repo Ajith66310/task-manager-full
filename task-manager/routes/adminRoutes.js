@@ -4,6 +4,7 @@ const { protect, authorize } = require("../middleware/auth");
 const {
   getAllUsers,
   verifyUser,
+  deleteUser,
   assignTask,
   getPendingTasks,
   verifyTask,
@@ -15,6 +16,7 @@ router.use(authorize("admin"));
 
 router.get("/users", getAllUsers);
 router.patch("/users/:id/verify", verifyUser);
+router.delete("/users/:id", deleteUser);
 router.post("/tasks/assign", assignTask);
 router.get("/tasks/pending", getPendingTasks);
 router.patch("/tasks/:id/verify", verifyTask);

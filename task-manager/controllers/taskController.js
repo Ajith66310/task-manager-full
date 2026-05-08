@@ -88,7 +88,12 @@ const updateTask = async (req, res, next) => {
   try {
     const { title, description, status, priority, dueDate } = req.body;
 
-    await findTaskOrFail(req.params.id, req.user);
+    const task = await findTaskOrFail(req.params.id, req.user);
+
+    // If task is already completed, it cannot be modified
+    if (task.status === "completed") {
+      throw new ApiError(403, "Completed tasks cannot be modified");
+    }
 
     const isVerifiedByAdmin = req.user.role === "admin";
 

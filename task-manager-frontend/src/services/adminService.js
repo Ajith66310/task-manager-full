@@ -25,6 +25,11 @@ const adminService = {
     const response = await API.patch(`/api/admin/tasks/${id}/verify`);
     return response.data;
   },
+  
+  deleteUser: async (id) => {
+    const response = await API.delete(`/api/admin/users/${id}`);
+    return response.data;
+  },
 };
 
 export default adminService;
