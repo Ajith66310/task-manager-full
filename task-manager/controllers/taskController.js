@@ -1,6 +1,7 @@
 const Task = require("../models/Task");
 const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/ApiResponse");
+const sendEmail = require("../utils/email");
 
 
 const findTaskOrFail = async (id, user) => {
@@ -109,7 +110,16 @@ const updateTask = async (req, res, next) => {
       }
     ).populate("user", "name email");
 
-
+    // Send email if admin updates task to completed
+    if (req.user.role === "admin" && status === "completed" && updated.user && updated.user.email) {
+      console.log(`Admin updated task to completed. Sending email to: ${updated.user.email}`);
+      await sendEmail({
+        email: updated.user.email,
+        subject: "Task Completed by Admin",
+        message: `Hello ${updated.user.name}, your task "${updated.title}" has been marked as completed by the admin.`,
+        html: `<h3>Hello ${updated.user.name},</h3><p>Your task <strong>${updated.title}</strong> has been marked as completed by the admin.</p>`,
+      });
+    }
 
     return sendSuccess(res, 200, "Task updated successfully", updated);
   } catch (err) {
