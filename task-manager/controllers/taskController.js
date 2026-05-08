@@ -110,15 +110,15 @@ const updateTask = async (req, res, next) => {
       }
     ).populate("user", "name email");
 
-    // Send email if admin updates task to completed
+    // Send email if admin updates task to completed (Background)
     if (req.user.role === "admin" && status === "completed" && updated.user && updated.user.email) {
       console.log(`Admin updated task to completed. Sending email to: ${updated.user.email}`);
-      await sendEmail({
+      sendEmail({
         email: updated.user.email,
         subject: "Task Completed by Admin",
         message: `Hello ${updated.user.name}, your task "${updated.title}" has been marked as completed by the admin.`,
         html: `<h3>Hello ${updated.user.name},</h3><p>Your task <strong>${updated.title}</strong> has been marked as completed by the admin.</p>`,
-      });
+      }).catch(err => console.error("Background Email Error (Update):", err.message));
     }
 
     return sendSuccess(res, 200, "Task updated successfully", updated);

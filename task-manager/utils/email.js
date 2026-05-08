@@ -13,13 +13,12 @@ const sendEmail = async (options) => {
     },
   });
 
-  // Verify connection configuration
-  try {
-    await transporter.verify();
+  // Verify connection configuration (Non-blocking)
+  transporter.verify().then(() => {
     console.log("SMTP server connection verified");
-  } catch (err) {
-    console.error("SMTP verification failed:", err.message);
-  }
+  }).catch((err) => {
+    console.warn("SMTP verification failed (Emails may not send):", err.message);
+  });
 
   // 2) Define the email options
   const mailOptions = {

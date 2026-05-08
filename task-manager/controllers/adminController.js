@@ -61,15 +61,15 @@ const assignTask = async (req, res, next) => {
 
     console.log(`Task assigned to user: ${populatedTask.user?.email || "No email found"}`);
 
-    // Send email notification
+    // Send email notification (Background)
     if (populatedTask.user && populatedTask.user.email) {
       console.log(`Attempting to send assignment email to: ${populatedTask.user.email}`);
-      await sendEmail({
+      sendEmail({
         email: populatedTask.user.email,
         subject: "New Task Assigned",
         message: `Hello ${populatedTask.user.name}, you have been assigned a new task: "${populatedTask.title}". Priority: ${populatedTask.priority}.`,
         html: `<h3>Hello ${populatedTask.user.name},</h3><p>You have been assigned a new task: <strong>${populatedTask.title}</strong>.</p><p>Priority: ${populatedTask.priority}</p><p>Description: ${populatedTask.description}</p>`,
-      });
+      }).catch(err => console.error("Background Email Error (Assignment):", err.message));
     }
 
     return sendSuccess(res, 201, "Task assigned successfully", task);
@@ -100,15 +100,15 @@ const verifyTask = async (req, res, next) => {
 
     console.log(`Task verified for user: ${populatedTask.user?.email || "No email found"}`);
 
-    // Send email notification
+    // Send email notification (Background)
     if (populatedTask.user && populatedTask.user.email) {
       console.log(`Attempting to send verification email to: ${populatedTask.user.email}`);
-      await sendEmail({
+      sendEmail({
         email: populatedTask.user.email,
         subject: "Task Completed and Verified",
         message: `Hello ${populatedTask.user.name}, your task "${populatedTask.title}" has been completed and verified by the admin.`,
         html: `<h3>Hello ${populatedTask.user.name},</h3><p>Your task <strong>${populatedTask.title}</strong> has been completed and verified by the admin.</p>`,
-      });
+      }).catch(err => console.error("Background Email Error (Verification):", err.message));
     }
 
     return sendSuccess(res, 200, "Task verified successfully", task);
