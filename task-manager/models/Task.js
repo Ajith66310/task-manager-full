@@ -44,6 +44,10 @@ const taskSchema = new mongoose.Schema(
       ref: "User",
       required: [true, "Task must belong to a user"],
     },
+    isVerifiedByAdmin: {
+      type: Boolean,
+      default: true, // Tasks created by admin are verified by default
+    },
   },
   {
     timestamps: true, 

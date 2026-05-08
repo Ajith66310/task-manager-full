@@ -39,4 +39,22 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new ApiError(403, `User role ${req.user.role} is not authorized to access this route`)
+      );
+    }
+    next();
+  };
+};
+
+const checkVerified = (req, res, next) => {
+  if (!req.user.isVerified && req.user.role !== "admin") {
+    return next(new ApiError(403, "Your account is not verified. Please wait for admin approval."));
+  }
+  next();
+};
+
+module.exports = { protect, authorize, checkVerified };

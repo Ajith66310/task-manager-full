@@ -2,8 +2,10 @@ const Task = require("../models/Task");
 const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/ApiResponse");
 
-const findTaskOrFail = async (id, userId) => {
-  const task = await Task.findOne({ _id: id, user: userId });
+
+const findTaskOrFail = async (id, user) => {
+  const query = user.role === "admin" ? { _id: id } : { _id: id, user: user.id };
+  const task = await Task.findOne(query);
   if (!task) throw new ApiError(404, `Task not found or you don't have permission to access it`);
   return task;
 };
@@ -19,6 +21,9 @@ const createTask = async (req, res, next) => {
       dueDate,
       user: req.user.id 
     });
+
+
+
     return sendSuccess(res, 201, "Task created successfully", task);
   } catch (err) {
     next(err);
@@ -36,7 +41,7 @@ const getAllTasks = async (req, res, next) => {
       order = "desc",
     } = req.query;
 
-    const filter = { user: req.user.id };
+    const filter = req.user.role === "admin" ? {} : { user: req.user.id };
     if (status) filter.status = status;
     if (priority) filter.priority = priority;
 
@@ -50,6 +55,7 @@ const getAllTasks = async (req, res, next) => {
 
     const [tasks, total] = await Promise.all([
       Task.find(filter)
+        .populate("user", "name email") // ✅ Populate user for admin view
         .sort({ [sortField]: sortOrder })
         .skip(skip)
         .limit(limitNum),
@@ -71,7 +77,7 @@ const getAllTasks = async (req, res, next) => {
 
 const getTaskById = async (req, res, next) => {
   try {
-    const task = await findTaskOrFail(req.params.id, req.user.id);
+    const task = await findTaskOrFail(req.params.id, req.user);
     return sendSuccess(res, 200, "Task retrieved successfully", task);
   } catch (err) {
     next(err);
@@ -82,17 +88,23 @@ const updateTask = async (req, res, next) => {
   try {
     const { title, description, status, priority, dueDate } = req.body;
 
-    await findTaskOrFail(req.params.id, req.user.id);
+    await findTaskOrFail(req.params.id, req.user);
+
+    const isVerifiedByAdmin = req.user.role === "admin";
+
+    const query = req.user.role === "admin" ? { _id: req.params.id } : { _id: req.params.id, user: req.user.id };
 
     const updated = await Task.findOneAndUpdate(
-      { _id: req.params.id, user: req.user.id },
-      { title, description, status, priority, dueDate },
+      query,
+      { title, description, status, priority, dueDate, isVerifiedByAdmin },
       {
-        new: true,          
-        runValidators: true, 
+        new: true,
+        runValidators: true,
         context: "query",
       }
-    );
+    ).populate("user", "name email");
+
+
 
     return sendSuccess(res, 200, "Task updated successfully", updated);
   } catch (err) {
@@ -102,8 +114,12 @@ const updateTask = async (req, res, next) => {
 
 const deleteTask = async (req, res, next) => {
   try {
-    await findTaskOrFail(req.params.id, req.user.id);
-    await Task.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    await findTaskOrFail(req.params.id, req.user);
+    const query = req.user.role === "admin" ? { _id: req.params.id } : { _id: req.params.id, user: req.user.id };
+    await Task.findOneAndDelete(query);
+
+
+
     return sendSuccess(res, 200, "Task deleted successfully");
   } catch (err) {
     next(err);

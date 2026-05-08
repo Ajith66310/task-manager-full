@@ -6,6 +6,7 @@ const morgan = require("morgan");
 const path = require("path");
 
 const { connectDB, disconnectDB } = require("./config/db");
+const User = require("./models/User");
 const routes = require("./routes");
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
@@ -19,17 +20,13 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl)
-      if (!origin) return callback(null, true);
-      
-      if (allowedOrigins === "*" || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins === "*" || allowedOrigins.includes(origin) || origin.startsWith("http://localhost:")) {
         callback(null, true);
       } else {
-        console.warn(`Blocked by CORS: ${origin}`);
         callback(new Error("Not allowed by CORS"));
       }
     },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
@@ -58,14 +55,47 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
+const createDefaultAdmin = async () => {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (!adminEmail || !adminPassword) {
+    return;
+  }
+
+  const normalizedEmail = adminEmail.toLowerCase();
+  const existingUser = await User.findOne({ email: normalizedEmail }).select("+password");
+
+  if (!existingUser) {
+    await User.create({
+      name: "Admin",
+      email: normalizedEmail,
+      password: adminPassword,
+      role: "admin",
+      isVerified: true,
+    });
+    console.log(`Default admin user created for ${normalizedEmail}`);
+    return;
+  }
+
+  existingUser.role = "admin";
+  existingUser.isVerified = true;
+  existingUser.password = adminPassword;
+  await existingUser.save();
+  console.log(`Default admin credentials synced for ${normalizedEmail}`);
+};
+
 const startServer = async () => {
   await connectDB();
+  await createDefaultAdmin();
 
   const server = app.listen(PORT, () => {
     console.log(`Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`);
     console.log(`API base URL: http://localhost:${PORT}/api`);
     console.log(`Allowed Origins: ${allowedOrigins}`);
   });
+
+
 
   const shutdown = async (signal) => {
     console.log(`\n${signal} received. Shutting down gracefully…`);

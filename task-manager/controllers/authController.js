@@ -26,7 +26,13 @@ const signup = async (req, res, next) => {
       return next(new ApiError(409, "An account with this email already exists"));
     }
 
-    const user = await User.create({ name, email, password });
+    const adminEmail = process.env.ADMIN_EMAIL || "ajith66310@gmail.com";
+    const isDefaultAdmin = email.toLowerCase() === adminEmail.toLowerCase();
+    
+    const role = isDefaultAdmin ? "admin" : "user";
+    const isVerified = isDefaultAdmin ? true : false;
+
+    const user = await User.create({ name, email, password, role, isVerified });
     const token = signToken(user._id);
 
     return sendSuccess(res, 201, "Account created successfully", {
@@ -35,6 +41,8 @@ const signup = async (req, res, next) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
+        isVerified: user.isVerified,
       },
     });
   } catch (err) {
@@ -68,6 +76,8 @@ const login = async (req, res, next) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
+        isVerified: user.isVerified,
       },
     });
   } catch (err) {
@@ -84,6 +94,8 @@ const getMe = async (req, res, next) => {
       id: req.user._id,
       name: req.user.name,
       email: req.user.email,
+      role: req.user.role,
+      isVerified: req.user.isVerified,
     });
   } catch (err) {
     next(err);

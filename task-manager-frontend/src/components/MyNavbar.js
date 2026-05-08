@@ -1,108 +1,201 @@
 import { useState } from "react";
+import { Bell, LogOut, X, CheckCheck } from "lucide-react";
 
-function Navbar({ logout, notifications, setNotifications }) {
-  const [show, setShow] = useState(false);
+function Navbar({ logout, notifications, setNotifications, currentPage }) {
+  const [showNotifs, setShowNotifs] = useState(false);
+
+  const pageLabels = {
+    overview: "Overview",
+    list: "Task List",
+    add: "Add Task",
+    users: "User Management",
+    verify: "Task Verification",
+  };
 
   return (
-    <div style={styles.navbar}>
-      <h3>Dashboard</h3>
+    <header style={styles.header}>
+      {/* Page title */}
+      <div>
+        <h1 style={styles.title}>
+          {pageLabels[currentPage] || "Dashboard"}
+        </h1>
+      </div>
 
+      {/* Right actions */}
       <div style={styles.rightSection}>
-        {/* 🔔 Notification Bell */}
-        <button style={styles.bell} onClick={() => setShow(!show)}>
-          🔔 {notifications.length > 0 && `(${notifications.length})`}
+        {/* Notification bell */}
+        <button
+          onClick={() => setShowNotifs((s) => !s)}
+          className="btn-ghost"
+          style={styles.bellBtn}
+        >
+          <Bell size={18} />
+          {notifications.length > 0 && (
+            <span style={styles.notificationBadge}>
+              {notifications.length}
+            </span>
+          )}
         </button>
 
-        {/* 🔽 Dropdown */}
-        {show && (
-          <div style={styles.dropdown}>
-            <h4>Notifications</h4>
-
-            {notifications.length === 0 && <p>No notifications</p>}
-
-            {notifications.map((n, i) => (
-              <div key={i} style={styles.notificationItem}>
-                <span>{n}</span>
-
+        {/* Notification dropdown */}
+        {showNotifs && (
+          <div className="card" style={styles.dropdown}>
+            <div style={styles.dropdownHeader}>
+              <p style={styles.dropdownTitle}>Notifications</p>
+              {notifications.length > 0 && (
                 <button
-                  onClick={() =>
-                    setNotifications((prev) =>
-                      prev.filter((_, idx) => idx !== i)
-                    )
-                  }
+                  onClick={() => setNotifications([])}
+                  style={styles.clearAllBtn}
                 >
-                  ❌
+                  <CheckCheck size={12} /> Clear all
                 </button>
-              </div>
-            ))}
-
-            {notifications.length > 0 && (
-              <button
-                style={styles.clearBtn}
-                onClick={() => setNotifications([])}
-              >
-                Mark all as read
-              </button>
-            )}
+              )}
+            </div>
+            <div style={styles.notifScroll}>
+              {notifications.length === 0 ? (
+                <div style={styles.emptyNotifs}>
+                  No notifications
+                </div>
+              ) : (
+                notifications.map((n, i) => (
+                  <div key={i} style={styles.notifItem}>
+                    <span style={styles.notifText}>{n}</span>
+                    <button
+                      onClick={() => setNotifications((prev) => prev.filter((_, idx) => idx !== i))}
+                      style={styles.removeNotifBtn}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
 
-        {/* 🚪 Logout */}
-        <button style={styles.logout} onClick={logout}>
+        {/* Divider */}
+        <div style={styles.divider} />
+
+        {/* Logout */}
+        <button onClick={logout} className="btn-danger" style={{ fontSize: '14px', padding: '6px 16px' }}>
+          <LogOut size={15} />
           Logout
         </button>
       </div>
-    </div>
+    </header>
   );
 }
 
-export default Navbar;
-
 const styles = {
-  navbar: {
+  header: {
+    height: "64px",
+    backgroundColor: "rgba(15, 23, 42, 0.8)",
+    backdropFilter: "blur(8px)",
+    borderBottom: "1px solid rgba(51, 65, 85, 0.5)",
     display: "flex",
-    justifyContent: "space-between",
     alignItems: "center",
-    padding: "12px 20px",
-    borderBottom: "1px solid #ddd",
-    background: "#fff"
+    justifyContent: "space-between",
+    padding: "0 24px",
+    position: "sticky",
+    top: 0,
+    zIndex: 10,
+  },
+  title: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: "18px",
+    margin: 0,
   },
   rightSection: {
     display: "flex",
     alignItems: "center",
-    gap: "10px",
-    position: "relative"
+    gap: "12px",
+    position: "relative",
   },
-  bell: {
-    padding: "6px 10px",
-    cursor: "pointer"
+  bellBtn: {
+    position: "relative",
   },
-  logout: {
-    padding: "6px 10px",
-    background: "#ef4444",
+  notificationBadge: {
+    position: "absolute",
+    top: "-4px",
+    right: "-4px",
+    width: "16px",
+    height: "16px",
+    backgroundColor: "#ef4444",
     color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer"
+    fontSize: "9px",
+    fontWeight: "bold",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
   dropdown: {
     position: "absolute",
-    top: "40px",
-    right: "0",
-    width: "250px",
-    background: "white",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-    padding: "10px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
+    top: "48px",
+    right: "48px",
+    width: "288px",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+    zIndex: 50,
+    overflow: "hidden",
   },
-  notificationItem: {
+  dropdownHeader: {
     display: "flex",
+    alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: "8px"
+    padding: "12px 16px",
+    borderBottom: "1px solid rgba(51, 65, 85, 0.5)",
   },
-  clearBtn: {
-    marginTop: "10px",
-    width: "100%"
-  }
+  dropdownTitle: {
+    fontSize: "14px",
+    fontWeight: "600",
+    color: "white",
+    margin: 0,
+  },
+  clearAllBtn: {
+    background: "none",
+    border: "none",
+    fontSize: "12px",
+    color: "#60a5fa",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+  },
+  notifScroll: {
+    maxHeight: "256px",
+    overflowY: "auto",
+  },
+  emptyNotifs: {
+    padding: "32px 16px",
+    textAlign: "center",
+    color: "#64748b",
+    fontSize: "14px",
+  },
+  notifItem: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "12px 16px",
+    borderBottom: "1px solid rgba(51, 65, 85, 0.3)",
+    transition: "background 0.2s ease",
+  },
+  notifText: {
+    fontSize: "14px",
+    color: "#cbd5e1",
+  },
+  removeNotifBtn: {
+    background: "none",
+    border: "none",
+    color: "#64748b",
+    cursor: "pointer",
+    marginLeft: "8px",
+  },
+  divider: {
+    width: "1px",
+    height: "24px",
+    backgroundColor: "#334155",
+  },
 };
+
+export default Navbar;
