@@ -15,7 +15,7 @@ function Login({ onLogin }) {
     }
     setLoading(true);
     try {
-      const res = await API.post("/auth/login", { email, password });
+      const res = await API.post("/api/auth/login", { email, password });
       if (res.data?.data?.token) {
         const { token, user } = res.data.data;
         if (user.role !== "admin") {

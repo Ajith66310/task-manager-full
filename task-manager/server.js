@@ -20,7 +20,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins === "*" || allowedOrigins.includes(origin) || origin.startsWith("http://localhost:")) {
+      if (!origin || allowedOrigins === "*" || allowedOrigins.includes(origin) || (origin && origin.includes("localhost")) || (origin && origin.includes("vercel.app"))) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));

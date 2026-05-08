@@ -11,7 +11,7 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const endpoint = isSignup ? '/auth/signup' : '/auth/login';
+      const endpoint = isSignup ? '/api/auth/signup' : '/api/auth/login';
       const { data } = await API.post(endpoint, formData);
       
       localStorage.setItem('token', data.data.token);

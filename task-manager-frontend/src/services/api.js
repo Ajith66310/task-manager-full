@@ -1,10 +1,14 @@
 import axios from "axios";
 
-let baseURL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+let baseURL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-// Ensure it ends with /api
-if (baseURL && !baseURL.endsWith("/api")) {
-  baseURL = baseURL.endsWith("/") ? `${baseURL}api` : `${baseURL}/api`;
+// Ensure it DOES NOT end with /api
+if (baseURL && baseURL.endsWith("/api")) {
+  baseURL = baseURL.substring(0, baseURL.length - 4);
+}
+// Remove trailing slash if present
+if (baseURL && baseURL.endsWith("/")) {
+  baseURL = baseURL.substring(0, baseURL.length - 1);
 }
 
 const API = axios.create({

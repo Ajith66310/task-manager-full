@@ -16,7 +16,7 @@ const saveLocalTasks = (tasks) =>
 // =====================
 export const getTasks = async (params = {}) => {
   try {
-    const res = await API.get("/tasks", { params });
+    const res = await API.get("/api/tasks", { params });
     return res.data.data;
   } catch (err) {
     console.warn("Using localStorage (backend down)");
@@ -38,7 +38,7 @@ export const getTasks = async (params = {}) => {
 // =====================
 export const addTask = async (task) => {
   try {
-    const res = await API.post("/tasks", task);
+    const res = await API.post("/api/tasks", task);
     return res.data.data;
   } catch (err) {
     const tasks = getLocalTasks();
@@ -64,7 +64,7 @@ export const addTask = async (task) => {
 // =====================
 export const updateTask = async (id, updates) => {
   try {
-    const res = await API.put(`/tasks/${id}`, updates);
+    const res = await API.put(`/api/tasks/${id}`, updates);
     return res.data.data;
   } catch (err) {
     const tasks = getLocalTasks();
@@ -85,7 +85,7 @@ export const updateTask = async (id, updates) => {
 // =====================
 export const deleteTask = async (id) => {
   try {
-    await API.delete(`/tasks/${id}`);
+    await API.delete(`/api/tasks/${id}`);
   } catch (err) {
     const tasks = getLocalTasks();
     const updated = tasks.filter((t) => t._id !== id);
@@ -106,7 +106,7 @@ export const toggleTaskStatus = async (task) => {
       : "pending";
 
   try {
-    const res = await API.put(`/tasks/${task._id}`, {
+    const res = await API.put(`/api/tasks/${task._id}`, {
       ...task,
       status: nextStatus
     });
