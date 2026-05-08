@@ -3,8 +3,10 @@ const nodemailer = require("nodemailer");
 const sendEmail = async (options) => {
   // 1) Create a transporter
   const transporter = nodemailer.createTransport({
+    service: process.env.EMAIL_SERVICE, // e.g., 'gmail'
     host: process.env.EMAIL_HOST || "smtp.mailtrap.io",
     port: process.env.EMAIL_PORT || 2525,
+    secure: process.env.EMAIL_SECURE === "true",
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
