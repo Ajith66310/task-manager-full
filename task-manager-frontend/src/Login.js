@@ -1,7 +1,7 @@
 import { useState } from "react";
 import API from "./services/api";
 import toast from "react-hot-toast";
-import { Zap, Mail, Lock, LogIn, AlertCircle } from "lucide-react";
+import { Zap, Mail, Lock, LogIn } from "lucide-react";
 
 function Login({ onLogin }) {
   const [email, setEmail] = useState("");
