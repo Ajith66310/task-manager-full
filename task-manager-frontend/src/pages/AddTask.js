@@ -6,7 +6,7 @@ import {
   AlignLeft, Flag, Loader2,
 } from "lucide-react";
 
-function AddTask({ addTask, editId, taskToEdit, setEditId }) {
+function AddTask({ addTask, editId, taskToEdit, setEditId, isSaving }) {
   const initialState = {
     title: "", description: "", dueDate: "", priority: "medium", status: "pending", userId: "",
   };
@@ -205,8 +205,17 @@ function AddTask({ addTask, editId, taskToEdit, setEditId }) {
             <X size={16} /> Cancel
           </button>
         )}
-        <button onClick={handleSubmit} className="btn-primary" style={{ padding: '10px 24px' }}>
-          {editId ? <><Save size={16} /> Update Task</> : <><PlusCircle size={16} /> Create Task</>}
+        <button 
+          onClick={handleSubmit} 
+          className="btn-primary" 
+          style={{ padding: '10px 24px', opacity: isSaving ? 0.7 : 1, cursor: isSaving ? 'not-allowed' : 'pointer' }}
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> {editId ? "Updating..." : "Creating..."}</>
+          ) : (
+            <>{editId ? <><Save size={16} /> Update Task</> : <><PlusCircle size={16} /> Create Task</>}</>
+          )}
         </button>
       </div>
     </div>

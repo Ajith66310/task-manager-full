@@ -7,8 +7,9 @@ import {
 
 
 const TaskVerification = () => {
-  const [tasks, setTasks]     = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks]         = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [verifyingId, setVerifyingId] = useState(null);
 
   const fetchPendingTasks = async () => {
     try {
@@ -27,11 +28,14 @@ const TaskVerification = () => {
 
   const handleVerify = async (id) => {
     try {
+      setVerifyingId(id);
       await adminService.verifyTask(id);
       toast.success("Task verified!");
       fetchPendingTasks();
     } catch {
       toast.error("Failed to verify task");
+    } finally {
+      setVerifyingId(null);
     }
   };
 
@@ -116,9 +120,18 @@ const TaskVerification = () => {
                   {/* Verify button */}
                   <button
                     onClick={() => handleVerify(task._id)}
-                    style={styles.verifyBtn}
+                    style={{
+                      ...styles.verifyBtn,
+                      opacity: verifyingId === task._id ? 0.7 : 1,
+                      cursor: verifyingId === task._id ? "not-allowed" : "pointer"
+                    }}
+                    disabled={verifyingId === task._id}
                   >
-                    <CheckCircle2 size={16} /> Verify
+                    {verifyingId === task._id ? (
+                      <><Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} /> Verifying...</>
+                    ) : (
+                      <><CheckCircle2 size={16} /> Verify</>
+                    )}
                   </button>
                 </div>
               </div>

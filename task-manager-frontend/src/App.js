@@ -169,6 +169,7 @@ function App() {
                   editId={editId}
                   taskToEdit={tasks.find((t) => t._id === editId)}
                   setEditId={setEditId}
+                  isSaving={loading}
                 />
               )}
               {page === "users"   && <UserManagement />}
