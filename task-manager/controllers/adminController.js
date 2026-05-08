@@ -59,8 +59,11 @@ const assignTask = async (req, res, next) => {
 
     const populatedTask = await Task.findById(task._id).populate("user", "name email");
 
+    console.log(`Task assigned to user: ${populatedTask.user?.email || "No email found"}`);
+
     // Send email notification
     if (populatedTask.user && populatedTask.user.email) {
+      console.log(`Attempting to send assignment email to: ${populatedTask.user.email}`);
       await sendEmail({
         email: populatedTask.user.email,
         subject: "New Task Assigned",
@@ -95,8 +98,11 @@ const verifyTask = async (req, res, next) => {
 
     const populatedTask = await Task.findById(task._id).populate("user", "name email");
 
+    console.log(`Task verified for user: ${populatedTask.user?.email || "No email found"}`);
+
     // Send email notification
     if (populatedTask.user && populatedTask.user.email) {
+      console.log(`Attempting to send verification email to: ${populatedTask.user.email}`);
       await sendEmail({
         email: populatedTask.user.email,
         subject: "Task Completed and Verified",
