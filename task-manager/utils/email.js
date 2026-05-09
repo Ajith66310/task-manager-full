@@ -1,45 +1,33 @@
 const nodemailer = require("nodemailer");
 
 const sendEmail = async (options) => {
-  // 1) Create a transporter
   const transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE,
-    host: process.env.EMAIL_HOST || "smtp.mailtrap.io",
-    port: parseInt(process.env.EMAIL_PORT, 10) || 2525,
-    secure: process.env.EMAIL_SECURE === "true",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // Use SSL
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    // Force IPv4 to avoid ENETUNREACH errors on some networks
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
   });
 
-  // Verify connection configuration (Non-blocking)
-  transporter.verify().then(() => {
-    console.log("SMTP server connection verified");
-  }).catch((err) => {
-    console.warn("SMTP verification failed (Emails may not send):", err.message);
-  });
-
-  // 2) Define the email options
   const mailOptions = {
-    from: `TaskFlow <${process.env.EMAIL_FROM || "no-reply@taskflow.com"}>`,
+    from: `TaskFlow <${process.env.EMAIL_FROM}>`,
     to: options.email,
     subject: options.subject,
     text: options.message,
     html: options.html,
   };
 
-  // 3) Actually send the email
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Email sent: ${info.response}`);
+    console.log(`Email sent successfully: ${info.response}`);
   } catch (error) {
     console.error("Email send error:", error.message);
+    // You can throw the error here if you want the calling function to handle it
+    // throw error;
   }
 };
 
 module.exports = sendEmail;
+
