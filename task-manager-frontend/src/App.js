@@ -18,7 +18,8 @@ import {
 } from "./services/taskService";
 import adminService from "./services/adminService";
 import toast from "react-hot-toast";
-import { sendEmailFromFrontend } from "./services/emailService";
+
+
 
 function App() {
   const [page, setPage] = useState("overview");
