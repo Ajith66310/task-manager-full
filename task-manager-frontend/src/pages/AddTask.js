@@ -49,6 +49,8 @@ function AddTask({ addTask, editId, taskToEdit, setEditId, isSaving }) {
 
   const handleSubmit = () => {
     if (!form.title.trim()) { toast.error("Title is required"); return; }
+    const selectedUser = users.find(u => u._id === form.userId);
+    
     addTask({
       title: form.title,
       description: form.description,
@@ -56,6 +58,7 @@ function AddTask({ addTask, editId, taskToEdit, setEditId, isSaving }) {
       priority: form.priority,
       status: form.status,
       userId: form.userId || null,
+      userEmail: selectedUser ? selectedUser.email : null,
     });
     setForm(initialState);
     setEditId(null);

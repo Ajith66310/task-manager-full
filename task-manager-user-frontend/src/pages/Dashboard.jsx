@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import taskService from '../services/taskService';
 import toast from 'react-hot-toast';
 import { LogOut, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { sendEmailFromFrontend } from '../services/emailService';
+
 const Dashboard = ({ user, onLogout }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,11 +31,23 @@ const Dashboard = ({ user, onLogout }) => {
     try {
       await taskService.updateTask(taskId, { status: newStatus });
       toast.success('Task updated! Pending admin verification.');
+      
+      // If task is completed, notify admin
+      if (newStatus === 'completed') {
+        const task = tasks.find(t => t._id === taskId);
+        sendEmailFromFrontend(
+          process.env.REACT_APP_ADMIN_EMAIL || 'ajith66310@gmail.com', 
+          "Task Completed by User", 
+          `The task "${task.title}" has been marked as completed by ${user.name} and is waiting for your verification.`
+        );
+      }
+      
       fetchTasks();
     } catch (err) {
       toast.error('Update failed');
     }
   };
+
 
   if (loading) return <div className="container">Loading dashboard...</div>;
 
