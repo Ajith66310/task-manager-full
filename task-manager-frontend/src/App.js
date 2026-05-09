@@ -75,21 +75,12 @@ function App() {
       } else {
         if (taskData.userId) {
           await adminService.assignTask(taskData);
-          
-          // Send Email via EmailJS from Frontend
-          if (taskData.userEmail) {
-            sendEmailFromFrontend(
-              taskData.userEmail, 
-              "New Task Assigned", 
-              `Hello! A new task "${taskData.title}" has been assigned to you. Please check your dashboard for details.`
-            );
-          }
-          
           toast.success("Task assigned successfully");
         } else {
           await createTask(taskData);
           toast.success("Task created");
         }
+
 
       }
       await loadTasks();

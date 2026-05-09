@@ -1,14 +1,24 @@
 const emailjs = require("@emailjs/nodejs");
 
 const sendEmail = async (options) => {
+  if (!options.email) {
+    console.warn("[EmailJS] Skipping email: Recipient address is empty.");
+    return;
+  }
+
   try {
+
     // These parameters must match the {{variable_names}} in your EmailJS template
     const templateParams = {
-      to_email: options.email,
+      email: options.email, // Matches {{email}} in your screenshot
       subject: options.subject,
       message: options.message,
-      html_content: options.html, // Optional: if your template supports HTML
+      html_content: options.html,
     };
+
+
+    console.log(`[EmailJS] Sending email to: ${options.email}`);
+
 
     const response = await emailjs.send(
       process.env.EMAILJS_SERVICE_ID,
