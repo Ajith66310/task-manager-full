@@ -1,33 +1,31 @@
-const nodemailer = require("nodemailer");
+const emailjs = require("@emailjs/nodejs");
 
 const sendEmail = async (options) => {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // Use SSL
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
-  const mailOptions = {
-    from: `TaskFlow <${process.env.EMAIL_FROM}>`,
-    to: options.email,
-    subject: options.subject,
-    text: options.message,
-    html: options.html,
-  };
-
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`Email sent successfully: ${info.response}`);
+    // These parameters must match the {{variable_names}} in your EmailJS template
+    const templateParams = {
+      to_email: options.email,
+      subject: options.subject,
+      message: options.message,
+      html_content: options.html, // Optional: if your template supports HTML
+    };
+
+    const response = await emailjs.send(
+      process.env.EMAILJS_SERVICE_ID,
+      process.env.EMAILJS_TEMPLATE_ID,
+      templateParams,
+      {
+        publicKey: process.env.EMAILJS_PUBLIC_KEY,
+        privateKey: process.env.EMAILJS_PRIVATE_KEY,
+      }
+    );
+
+    console.log("Email sent successfully via EmailJS:", response.status, response.text);
   } catch (error) {
-    console.error("Email send error:", error.message);
-    // You can throw the error here if you want the calling function to handle it
-    // throw error;
+    console.error("EmailJS Error:", error);
   }
 };
 
 module.exports = sendEmail;
+
 
