@@ -11,6 +11,25 @@ const Login = ({ onLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const { name, email, password } = formData;
+
+    if (isSignup && (!name || name.trim().length < 2)) {
+      toast.error('Name must be at least 2 characters');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
     try {
       const endpoint = isSignup ? '/api/auth/signup' : '/api/auth/login';
@@ -20,7 +39,8 @@ const Login = ({ onLogin }) => {
       toast.success(isSignup ? 'Account created!' : 'Welcome back!');
       onLogin(data.data.user);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Action failed');
+      const errorMsg = err.response?.data?.errors?.[0]?.message || err.response?.data?.message || 'Action failed';
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -28,10 +48,25 @@ const Login = ({ onLogin }) => {
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    if (resetData.newPassword !== resetData.confirmPassword) {
+
+    const { email, newPassword, confirmPassword } = resetData;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
       toast.error('Passwords do not match');
       return;
     }
+
     setLoading(true);
     try {
       await API.post('/api/auth/reset-password', resetData);
@@ -39,7 +74,8 @@ const Login = ({ onLogin }) => {
       setIsForgotPassword(false);
       setResetData({ email: '', newPassword: '', confirmPassword: '' });
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Reset failed');
+      const errorMsg = err.response?.data?.errors?.[0]?.message || err.response?.data?.message || 'Reset failed';
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }

@@ -9,8 +9,13 @@ function Login({ onLogin }) {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      toast.error("Please enter email and password");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    if (!password || password.length < 6) {
+      toast.error("Password must be at least 6 characters");
       return;
     }
     setLoading(true);
@@ -29,7 +34,8 @@ function Login({ onLogin }) {
         throw new Error("Invalid response from server");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed");
+      const errorMsg = err.response?.data?.errors?.[0]?.message || err.response?.data?.message || "Login failed";
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
