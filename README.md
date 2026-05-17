@@ -1,6 +1,6 @@
 # TaskFlow Microservices Application
 
-A fully containerized full-stack task management application refactored from a monolithic codebase into a secure microservices architecture. Inter-service communication is managed by a centralized API Gateway, with isolated MongoDB databases to ensure data layer autonomy and scalability.
+A fully containerized full-stack task management application 
 
 ## Tech Stack
 
