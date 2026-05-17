@@ -33,7 +33,7 @@ app.use('/api/admin/tasks', createProxyMiddleware({ target: 'http://task-service
 app.use('/api/admin', createProxyMiddleware({ target: 'http://user-service:5001/api/admin', changeOrigin: true }));
 app.use('/api/tasks', createProxyMiddleware({ target: 'http://task-service:5002/api/tasks', changeOrigin: true }));
 
-app.get('/health', (req, res) => res.send('API Gateway is running'));
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

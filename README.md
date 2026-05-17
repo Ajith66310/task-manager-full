@@ -90,7 +90,6 @@ Once execution completes, all 8 containers will be running in the background.
 - User Interface: http://localhost:5173
 - Admin Dashboard: http://localhost:3000
 - API Gateway Entrypoint: http://localhost:5000
-- API Gateway Health Status Check: http://localhost:5000/health
 
 ---
 
