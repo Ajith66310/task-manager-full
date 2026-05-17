@@ -30,8 +30,11 @@ API.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      sessionStorage.removeItem("token");
-      window.location.href = "/"; // Force redirect to login
+      // Do not redirect if the failure is on the login route
+      if (error.config && !error.config.url.includes("/login")) {
+        sessionStorage.removeItem("token");
+        window.location.href = "/"; // Force redirect to login
+      }
     }
     return Promise.reject(error);
   }
