@@ -1,9 +1,6 @@
 const Task = require("../models/Task");
 const ApiError = require("../utils/ApiError");
 const { sendSuccess } = require("../utils/ApiResponse");
-const sendEmail = require("../utils/email");
-
-
 const findTaskOrFail = async (id, user) => {
   const query = user.role === "admin" ? { _id: id } : { _id: id, user: user.id };
   const task = await Task.findOne(query);
@@ -56,7 +53,6 @@ const getAllTasks = async (req, res, next) => {
 
     const [tasks, total] = await Promise.all([
       Task.find(filter)
-        .populate("user", "name email") 
         .sort({ [sortField]: sortOrder })
         .skip(skip)
         .limit(limitNum),
@@ -107,16 +103,32 @@ const updateTask = async (req, res, next) => {
         runValidators: true,
         context: "query",
       }
-    ).populate("user", "name email");
+    );
 
-    if (req.user.role === "admin" && status === "completed" && updated.user && updated.user.email) {
-      console.log(`Admin updated task to completed. Sending email to: ${updated.user.email}`);
-      sendEmail({
-        email: updated.user.email,
-        subject: "Task Completed by Admin",
-        message: `Hello ${updated.user.name}, your task "${updated.title}" has been marked as completed by the admin.`,
-        html: `<h3>Hello ${updated.user.name},</h3><p>Your task <strong>${updated.title}</strong> has been marked as completed by the admin.</p>`,
-      }).catch(err => console.error("Background Email Error (Update):", err.message));
+    if (req.user.role === "admin" && status === "completed" && updated.user) {
+      // In a real scenario, we'd fetch the user's email from user-service
+      // but for simplicity, we assume we know the email or just send a notification
+      // using the User ID. (Assuming updated.user contains the ID).
+      console.log(`Admin updated task to completed. Sending email notification request.`);
+      
+      // Fetch user email from user-service
+      const userRes = await fetch(`http://user-service:5001/api/auth/me`, {
+         headers: { 'Authorization': req.headers.authorization }
+      });
+      const userData = await userRes.json();
+      
+      if (userData.data && userData.data.email) {
+          fetch('http://notification-service:5003/api/notifications/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: userData.data.email,
+              subject: "Task Completed by Admin",
+              message: `Hello ${userData.data.name}, your task "${updated.title}" has been marked as completed by the admin.`,
+              html: `<h3>Hello ${userData.data.name},</h3><p>Your task <strong>${updated.title}</strong> has been marked as completed by the admin.</p>`,
+            })
+          }).catch(err => console.error("Background Email Error (Update):", err));
+      }
     }
 
     return sendSuccess(res, 200, "Task updated successfully", updated);

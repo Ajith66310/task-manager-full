@@ -32,7 +32,6 @@ const Dashboard = ({ user, onLogout }) => {
       await taskService.updateTask(taskId, { status: newStatus });
       toast.success('Task updated! Pending admin verification.');
       
-      // If task is completed, notify admin
       if (newStatus === 'completed') {
         const task = tasks.find(t => t._id === taskId);
         sendEmailFromFrontend(

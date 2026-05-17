@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  mongo-user:
+    image: mongo:latest
+    container_name: task_manager_mongo_user
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_user_data:/data/db
+    restart: unless-stopped
+
+  mongo-task:
+    image: mongo:latest
+    container_name: task_manager_mongo_task
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo_task_data:/data/db
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: task_manager_api_gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    depends_on:
+      - user-service
+      - task-service
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: task_manager_user_service
+    env_file:
+      - ./task-manager/.env
+    environment:
+      - PORT=5001
+      - MONGO_URI=mongodb://mongo-user:27017/TaskManagerUser
+    depends_on:
+      - mongo-user
+    restart: unless-stopped
+
+  task-service:
+    build:
+      context: ./task-service
+      dockerfile: Dockerfile
+    container_name: task_manager_task_service
+    env_file:
+      - ./task-manager/.env
+    environment:
+      - PORT=5002
+      - MONGO_URI=mongodb://mongo-task:27017/TaskManagerTask
+    depends_on:
+      - mongo-task
+      - user-service
+      - notification-service
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: task_manager_notification_service
+    env_file:
+      - ./task-manager/.env
+    environment:
+      - PORT=5003
+    restart: unless-stopped
+
+  admin-frontend:
+    build:
+      context: ./task-manager-frontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=http://localhost:5000/api
+    container_name: task_manager_admin_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+
+  user-frontend:
+    build:
+      context: ./task-manager-user-frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:5000/api
+    container_name: task_manager_user_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+
+volumes:
+  mongo_user_data:
+  mongo_task_data:

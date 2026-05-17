@@ -7,7 +7,6 @@ const sendEmail = async (options) => {
   }
 
   try {
-
     const templateParams = {
       email: options.email,
       subject: options.subject,
@@ -15,9 +14,7 @@ const sendEmail = async (options) => {
       html_content: options.html,
     };
 
-
     console.log(`[EmailJS] Sending email to: ${options.email}`);
-
 
     const response = await emailjs.send(
       process.env.EMAILJS_SERVICE_ID,
@@ -36,5 +33,3 @@ const sendEmail = async (options) => {
 };
 
 module.exports = sendEmail;
-
-
